@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap');
+
+:root { color-scheme: light; }
+.stApp { background: radial-gradient(circle at 15% 8%, #fce5f4 0, transparent 32%), radial-gradient(circle at 90% 75%, #def6f1 0, transparent 30%), #f9f6ff; font-family: 'DM Sans', sans-serif; }
+.block-container { max-width: 1100px; padding-top: 1.15rem; padding-bottom: 1.5rem; }
+[data-testid="stVerticalBlockBorderWrapper"] > div:has(.brand) { background: rgba(255,255,255,.88); border: 1px solid #eee3fa; border-radius: 28px; box-shadow: 0 18px 60px rgba(89,63,131,.10); padding: 20px 34px 30px; text-align: center; }
+.brand { color: #8062aa; font-size: .78rem; letter-spacing: .2em; font-weight: 800; margin: 3px 0 26px; }
+.eyebrow { color: #9b79b3; font-size: .72rem; font-weight: 800; letter-spacing: .18em; margin: 12px 0 18px; }
+.hero-art { margin: 0 auto 22px; width: min(100%, 430px); min-height: 205px; border-radius: 34px; background: linear-gradient(135deg,#f7e1f8,#e6e8ff 52%,#def6e9); display: flex; align-items: center; justify-content: center; font-size: 75px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.7); }
+.hero-art span { font-size: 45px; align-self: flex-start; margin-top: 35px; }
+h1 { font-family: 'Nunito', sans-serif; font-size: clamp(2rem,5vw,3rem) !important; color: #453462 !important; line-height: 1.2 !important; font-weight: 900 !important; text-align: center; margin: 0 0 18px !important; }
+.intro { font-size: 1.06rem; line-height: 1.55; color: #5c5571; max-width: 560px; margin: 0 auto 15px; text-align: center; }
+.quote { max-width: 540px; margin: 0 auto 12px; border-radius: 18px; padding: 14px 18px; color: #6a5485; background: #f3ecff; font-style: italic; font-weight: 600; line-height: 1.5; }
+div.stButton { max-width: 390px; margin: 8px auto; }
+div.stButton button[kind="primary"] { border: 0; border-radius: 100px; color: white; background: linear-gradient(100deg, #9864d2, #da78b5); padding: 15px 22px; font-size: 1.13rem; font-weight: 800; min-height: 58px; box-shadow: 0 7px 18px #ae8ad43b; }
+div.stButton button[kind="primary"]:hover { background: linear-gradient(100deg,#8050bf,#c85f9f); color: white; }
+.footer-note { margin-top: 28px; text-align: center; color: #9589a4; font-size: .85rem; }
+.wheel-preview { font-size: 108px; text-align: center; margin: 20px 0 28px; }
+@media(max-width:640px) { .block-container { padding: 1rem .6rem; } [data-testid="stVerticalBlockBorderWrapper"] > div:has(.brand) { padding: 14px 15px 24px; } .hero-art { min-height: 170px; font-size: 60px; } .intro { font-size: 1rem; } }
+
+[data-testid="stImage"]:has(img[src*="prithvi_kawaii"]) { max-width: 360px; margin: 0 auto 18px; border-radius: 30px; background: radial-gradient(ellipse at center, #f1e5ff 0, #f3edff 52%, transparent 75%); }
+.brand { text-align: center; }
+.wheel-area { width: 290px; height: 295px; margin: 2px auto 8px; position: relative; display: grid; place-items: center; }
+.wheel { height: 270px; width: 270px; border-radius: 50%; border: 11px solid #fff; box-shadow: 0 8px 24px #9075b93a; display: grid; place-items: center; }
+.wheel-center { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; background: white; font-size: 29px; box-shadow: 0 2px 10px #55416b55; }
+.pointer { position: absolute; z-index: 3; top: -2px; left: calc(50% - 15px); color: #5c407c; font-size: 36px; filter: drop-shadow(0 2px 1px white); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.word-tags { display:flex; flex-wrap:wrap; gap:9px; padding: 8px 0; }
+.word-tags span { padding:8px 13px; border-radius:16px; color:#5d457e; background:#f1e9ff; font-weight:600; }
+.goodluck-art { text-align:center; font-size:72px; padding:42px 8px; background:linear-gradient(135deg,#fbe2ef,#e2e9ff,#e1f8ec); border-radius:27px; margin:8px 0 12px; }
+.final-cheer { text-align:center; background:#f3ecff; border-radius:18px; padding:14px 18px; margin:12px 0 16px; color:#60477f; font-size:1.04rem; line-height:1.55; }
+.step-counter { text-align:center; font-weight:800; color:#7553a0; font-size:.95rem; margin:0 0 7px; }
+.step-illustration { text-align:center; font-size:66px; padding:8px 0 4px; }
+[data-testid="stProgress"] { max-width:500px; margin:0 auto 18px; }
+[data-testid="stTextArea"] textarea { font-size:1.06rem; border-radius:16px; }
+div.stButton button { min-height:48px; border-radius:14px; }
+@media(max-width:900px) {
+  .block-container { max-width:760px; padding: .7rem .85rem 1.2rem; }
+  .eyebrow { margin:3px 0 8px; }
+  h1 { margin-bottom:8px !important; font-size:clamp(1.65rem,4vw,2.35rem) !important; }
+  .step-illustration { font-size:50px; padding:0; }
+  div[data-testid="stHorizontalBlock"]:has(.step-illustration),
+  div[data-testid="stHorizontalBlock"]:has(.wheel-area),
+  div[data-testid="stHorizontalBlock"]:has(.goodluck-art),
+  div[data-testid="stHorizontalBlock"]:has([data-testid="stImage"]) { flex-direction:column; }
+  div[data-testid="stHorizontalBlock"]:has(.step-illustration) > div,
+  div[data-testid="stHorizontalBlock"]:has(.wheel-area) > div,
+  div[data-testid="stHorizontalBlock"]:has(.goodluck-art) > div,
+  div[data-testid="stHorizontalBlock"]:has([data-testid="stImage"]) > div { width:100% !important; flex:1 1 auto !important; }
+  .wheel-area { width:250px; height:260px; }
+  .wheel { width:235px; height:235px; }
+  [data-testid="stImage"] { max-width:245px; margin:auto; }
+}
