@@ -1,4 +1,4 @@
-"""Prithvi's Story World: wheel, prompts, story planning and vocabulary."""
+"""Prithvi's Story World: storytelling and multiplication practice."""
 from pathlib import Path
 import random
 
@@ -8,6 +8,7 @@ from data.story_data import HINTS, PROMPTS, vocabulary_for
 BASE = Path(__file__).resolve().parent
 CATEGORIES = list(PROMPTS)
 COLORS = ["#f6a6c8", "#c1b8fa", "#a7d8e8", "#aedcc6", "#f7d59a", "#eeb6a6", "#a8d6f1", "#e4b7df", "#b9d897", "#f5c78e"]
+TABLE_ORDER = [7, 8, 12, 3, 6, 9, 11, 2, 4, 5]
 STEPS = [
     ("👧", "Choose your characters", "Who is your hero? What do they want? What makes them interesting?"),
     ("🏡", "Imagine the setting", "Where and when does your story happen? What can you see, hear, or feel there?"),
@@ -34,22 +35,128 @@ def new_story():
         st.session_state.pop(f"plan_widget_{i}", None)
 
 
+def new_quiz():
+    """Create ten different questions from the 2–12 times tables (× 1–10)."""
+    questions = [(a, b) for a in range(2, 13) for b in range(1, 11)]
+    st.session_state.math_questions = random.sample(questions, 10)
+    st.session_state.math_index = 0
+    st.session_state.math_results = []
+    st.session_state.pop("math_answer", None)
+
+
+def math_tables():
+    st.markdown('<h1>✖️ Multiplication Fun!</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="intro">Practise these ten tables, each up to × 10. When you feel ready, try ten fun questions!</p>', unsafe_allow_html=True)
+    for row_start in (0, 5):
+        cols = st.columns(5, gap="small")
+        for number, col in zip(TABLE_ORDER[row_start:row_start + 5], cols):
+            with col:
+                with st.container(border=True):
+                    st.markdown(f"<div class='math-table-heading'>× {number}</div>", unsafe_allow_html=True)
+                    for multiplier in range(1, 11):
+                        st.markdown(f"<div class='math-table-line'>{number} × {multiplier} = <strong>{number * multiplier}</strong></div>", unsafe_allow_html=True)
+    if st.button("🚀 Start my 10-question challenge!", type="primary", use_container_width=True):
+        new_quiz()
+        go("math_quiz")
+    if st.button("🏠 Back to home", use_container_width=True):
+        go("welcome")
+
+
+def math_quiz():
+    if "math_questions" not in st.session_state:
+        new_quiz()
+    index = st.session_state.math_index
+    if index >= 10:
+        go("math_results")
+    a, b = st.session_state.math_questions[index]
+    st.markdown('<h1>🧠 Multiplication Challenge</h1>', unsafe_allow_html=True)
+    st.markdown(f'<p class="step-counter">Question {index + 1} of 10</p>', unsafe_allow_html=True)
+    st.progress((index + 1) / 10)
+    st.markdown(f'<div class="math-question">{a} × {b} = ?</div>', unsafe_allow_html=True)
+    with st.form(key=f"question_{index}", clear_on_submit=False):
+        answer = st.number_input("Your answer", min_value=0, max_value=1200, value=None,
+                                 step=1, placeholder="Type your answer", key=f"math_answer_{index}")
+        submitted = st.form_submit_button("Next question →" if index < 9 else "🏆 Finish challenge!",
+                                          type="primary", use_container_width=True)
+    if submitted:
+        if answer is None:
+            st.warning("Type an answer first. Take your time! 💜")
+        else:
+            correct = a * b
+            st.session_state.math_results.append({"a": a, "b": b, "answer": int(answer),
+                                                  "correct": correct, "is_correct": answer == correct})
+            st.session_state.math_index += 1
+            go("math_results" if index == 9 else "math_quiz")
+
+
+def math_results():
+    results = st.session_state.get("math_results", [])
+    if len(results) != 10:
+        go("math_tables")
+    score = sum(item["is_correct"] for item in results)
+    if score == 10:
+        message = "WOW, Prithvi! You're a multiplication superstar! 🌟"
+    elif score >= 8:
+        message = "Amazing work! You're getting stronger with every question! 🌷"
+    elif score >= 5:
+        message = "Great effort! Every question you try makes your brain stronger! 💖"
+    elif score >= 2:
+        message = "I'm proud of you for trying! Mistakes help us learn. Keep going! 🌈"
+    else:
+        message = "You showed up and gave it a try! Let's learn together, one step at a time! ❤️"
+    st.markdown(
+        f'<div class="math-results-header"><div class="math-results-title">🏆 Great Job, Prithvi!</div>'
+        f'<div class="math-score">{score} / 10</div>'
+        f'<div class="math-results-cheer">{message}</div></div>',
+        unsafe_allow_html=True,
+    )
+    tiles = []
+    for number, item in enumerate(results, start=1):
+        is_correct = item["is_correct"]
+        result_label = "✅ Correct!" if is_correct else "❌ Wrong"
+        answer_line = (
+            f'<div class="math-tile-answer">Your answer: <strong>{item["answer"]}</strong></div>'
+        )
+        correction = (
+            "" if is_correct else
+            f'<div class="math-tile-correction">Correct: <strong>{item["correct"]}</strong></div>'
+        )
+        tiles.append(
+            f'<div class="math-result-tile {"math-tile-right" if is_correct else "math-tile-wrong"}">'
+            f'<div class="math-tile-number">Question {number}</div>'
+            f'<div class="math-tile-problem">{item["a"]} × {item["b"]} = {item["correct"] if is_correct else "?"}</div>'
+            f'<div class="math-tile-status">{result_label}</div>'
+            f'{answer_line}{correction}</div>'
+        )
+    st.markdown('<div class="math-results-grid">' + ''.join(tiles) + '</div>', unsafe_allow_html=True)
+    again, tables, home = st.columns(3, gap="small")
+    with again:
+        if st.button("🔄 Practice again", type="primary", use_container_width=True):
+            new_quiz()
+            go("math_quiz")
+    with tables:
+        if st.button("📚 Review tables", use_container_width=True):
+            go("math_tables")
+    with home:
+        if st.button("🏠 Home", use_container_width=True):
+            go("welcome")
+
+
 def welcome():
     picture, words = st.columns([1, 1.25], gap="medium", vertical_alignment="center")
     with picture:
         st.image(str(BASE / "assets/prithvi_kawaii.png"), width=300)
     with words:
-        st.markdown('<div class="eyebrow">✦ A PLACE FOR BIG IMAGINATIONS ✦</div>', unsafe_allow_html=True)
         st.markdown("<h1>Hello, Prithvi! 🌸</h1>", unsafe_allow_html=True)
-        st.markdown('<p class="intro">I’m so happy you’re here! Every wonderful story starts with a tiny spark of imagination. Shall we discover yours today?</p>', unsafe_allow_html=True)
         st.markdown('<div class="quote">“Your imagination is your superpower. There is no wrong way to begin a story.”</div>', unsafe_allow_html=True)
         if st.button("✨ Let’s create a story!", type="primary", use_container_width=True):
             go("wheel")
+        if st.button("✖️ Multiplication Fun!", key="multiplication_home", use_container_width=True):
+            go("math_tables")
         st.markdown('<p class="footer-note">Made with love for a curious young storyteller 💜</p>', unsafe_allow_html=True)
 
 
 def wheel():
-    st.markdown('<div class="eyebrow">LET FATE CHOOSE YOUR ADVENTURE</div>', unsafe_allow_html=True)
     st.markdown('<h1>🎡 The Magic Story Wheel</h1>', unsafe_allow_html=True)
     gradient = ",".join(f"{c} {i*10}% {(i+1)*10}%" for i, c in enumerate(COLORS))
     spinning = st.session_state.spinning
@@ -86,7 +193,6 @@ def wheel():
 
 def prompt():
     story = st.session_state.selected
-    st.markdown('<div class="eyebrow">YOUR STORY CHALLENGE</div>', unsafe_allow_html=True)
     st.markdown(f"<h1>{story['title']}</h1>", unsafe_allow_html=True)
     left, right = st.columns(2, gap="large")
     with left:
@@ -108,7 +214,6 @@ def planner():
     answers = st.session_state.setdefault("plan_answers", {})
     emoji, title, question = STEPS[step]
 
-    st.markdown('<div class="eyebrow">YOUR VERY OWN STORY BLUEPRINT</div>', unsafe_allow_html=True)
     st.markdown('<h1>📝 My Story Blueprint</h1>', unsafe_allow_html=True)
     st.markdown(f'<p class="step-counter">Step {step+1} of 6</p>', unsafe_allow_html=True)
     st.progress((step + 1) / len(STEPS))
@@ -152,7 +257,6 @@ def planner():
 
 def vocabulary():
     cat = st.session_state.selected["category"]
-    st.markdown('<div class="eyebrow">YOUR OPTIONAL WORD COLLECTION</div>', unsafe_allow_html=True)
     st.markdown('<h1>📖 Vocabulary Treasure Box</h1>', unsafe_allow_html=True)
     st.markdown('<p class="intro">Prithvi, you already have a wonderful way with words! If you want inspiration, peek at these suggestions. Use any you like—or none at all.</p>', unsafe_allow_html=True)
     st.caption(f"50 words selected for your {cat.lower()} story")
@@ -170,7 +274,6 @@ def vocabulary():
 
 def good_luck():
     story = st.session_state.selected
-    st.markdown('<div class="eyebrow">YOUR NOTEBOOK WRITING GUIDE</div>', unsafe_allow_html=True)
     st.markdown('<h1>📖 My Story Plan</h1>', unsafe_allow_html=True)
     st.markdown(f"### ✨ {story['title']}")
     st.caption(f"{story['category']} · Keep this page open while you write in your notebook!")
@@ -208,12 +311,15 @@ def main():
     st.markdown(f"<style>{(BASE / 'assets/styles.css').read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
     for key, value in (('page', 'welcome'), ('spinning', False), ('selected', None), ('wheel_index', 0)):
         st.session_state.setdefault(key, value)
-    if st.session_state.page not in ('welcome', 'wheel') and not st.session_state.selected:
+    story_pages = ('prompt', 'planner', 'vocabulary', 'good_luck')
+    if st.session_state.page in story_pages and not st.session_state.selected:
         st.session_state.page = 'wheel'
     st.markdown('<div class="brand">✦ PRITHVI’S STORY WORLD ✦</div>', unsafe_allow_html=True)
-    if st.session_state.page != 'welcome':
+    if st.session_state.page in ('wheel', *story_pages):
         st.caption('✨ Discover → 💡 Imagine → 📝 Plan → 📖 Explore words → 🌟 Good luck')
-    {'welcome':welcome, 'wheel':wheel, 'prompt':prompt, 'planner':planner, 'vocabulary':vocabulary, 'good_luck':good_luck}[st.session_state.page]()
+    {'welcome':welcome, 'wheel':wheel, 'prompt':prompt, 'planner':planner,
+     'vocabulary':vocabulary, 'good_luck':good_luck, 'math_tables':math_tables,
+     'math_quiz':math_quiz, 'math_results':math_results}[st.session_state.page]()
 
 
 if __name__ == '__main__':
